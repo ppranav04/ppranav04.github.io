@@ -1,0 +1,230 @@
+---
+// Boot screen: "bringing systems online." resolves out of blur, a chrome line draws, a counter
+// runs to 100, the text switches to "systems online.", then the screen wipes upward. Shows once per browser session; click or Esc skips it.
+const word = 'bringing systems online.';
+const doneWord = 'systems online.';
+---
+
+<div id="boot" class="boot" title="Click to skip">
+  <div class="corner tl" aria-hidden="true">13.0827° N / 80.2707° E</div>
+  <div class="corner tr" aria-hidden="true">SYS.BOOT // v1.0</div>
+  <div class="corner bl" aria-hidden="true"><span data-phase>initializing</span></div>
+  <div class="corner br counter" aria-hidden="true"><span data-count>000</span></div>
+
+  <div class="center">
+    <p class="word display" aria-label={word} data-done={doneWord}>
+      {
+        [...word].map((ch, i) => (
+          <span style={`--i:${i}`} aria-hidden="true">
+            {ch}
+          </span>
+        ))
+      }
+    </p>
+    <div class="line" aria-hidden="true"></div>
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    const el = document.getElementById('boot');
+    if (!el) return;
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem('boot-seen') === '1';
+      sessionStorage.setItem('boot-seen', '1');
+    } catch {}
+    if (seen) {
+      el.remove();
+      return;
+    }
+
+    const count = el.querySelector('[data-count]');
+    const phase = el.querySelector('[data-phase]');
+    const phases = ['initializing', 'loading modules', 'calibrating', 'online'];
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const total = reduce ? 300 : 1100;
+    const start = performance.now();
+    const root = document.documentElement;
+    let done = false;
+
+    root.style.overflow = 'hidden';
+
+    function finish() {
+      if (done) return;
+      done = true;
+      root.style.overflow = '';
+      el.classList.add('done');
+      setTimeout(() => el.remove(), 700);
+    }
+
+    function tick(now) {
+      if (done) return;
+      const t = Math.min(1, (now - start) / total);
+      const eased = 1 - Math.pow(1 - t, 3);
+      count.textContent = String(Math.round(eased * 100)).padStart(3, '0');
+      phase.textContent = phases[Math.min(phases.length - 1, Math.floor(t * phases.length))];
+      if (t < 1) return requestAnimationFrame(tick);
+      const word = el.querySelector('.word');
+      word.textContent = word.dataset.done;
+      word.setAttribute('aria-label', word.dataset.done);
+      word.classList.add('swapped');
+      setTimeout(finish, reduce ? 0 : 400);
+    }
+
+    requestAnimationFrame(tick);
+    el.addEventListener('click', finish);
+    addEventListener('keydown', (e) => e.key === 'Escape' && finish());
+  })();
+</script>
+
+<style>
+  .boot {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    cursor: pointer;
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+    /* failsafe: never leave the page covered if the script fails */
+    animation: failsafe 0.01s linear 3s forwards;
+  }
+
+  .boot.done {
+    clip-path: inset(0 0 100% 0);
+    pointer-events: none;
+  }
+
+  @keyframes failsafe {
+    to {
+      visibility: hidden;
+    }
+  }
+
+  .center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .word {
+    margin: 0;
+    /* the phrase is ~10.3em wide, so this always fits on one line */
+    font-size: clamp(1.25rem, 5.5vw, 3.5rem);
+    white-space: nowrap;
+    color: var(--text);
+  }
+
+  .word span {
+    display: inline-block;
+    white-space: pre;
+    animation: resolve 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) calc(0.05s + var(--i) * 0.015s) backwards;
+  }
+
+  .word.swapped {
+    animation: resolve 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  @keyframes resolve {
+    from {
+      opacity: 0;
+      filter: blur(14px);
+      transform: translateY(0.15em) scale(1.08);
+    }
+  }
+
+  .line {
+    width: min(320px, 60vw);
+    height: 1px;
+    margin: 1.25rem 0 0;
+    background: linear-gradient(90deg, transparent, var(--chrome), transparent);
+    box-shadow: 0 0 12px var(--glow);
+    transform-origin: center;
+    animation: draw 0.7s cubic-bezier(0.65, 0, 0.35, 1) 0.25s backwards;
+  }
+
+  @keyframes draw {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .corner {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--slate);
+    animation: fade 0.6s ease 0.2s backwards;
+  }
+
+  .tl {
+    top: 1.5rem;
+    left: 1.5rem;
+  }
+
+  .tr {
+    top: 1.5rem;
+    right: 1.5rem;
+  }
+
+  .bl {
+    bottom: 1.5rem;
+    left: 1.5rem;
+  }
+
+  .bl::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 0.6rem;
+    border-radius: 50%;
+    background: var(--chrome);
+    box-shadow: 0 0 8px var(--chrome);
+    vertical-align: middle;
+    animation: pulse 0.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes pulse {
+    to {
+      opacity: 0.25;
+    }
+  }
+
+  .counter {
+    bottom: 1rem;
+    right: 1.5rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 520px) {
+    .tr {
+      display: none;
+    }
+  }
+
+  /* Keep the failsafe even when the global reduced-motion rule disables animations */
+  @media (prefers-reduced-motion: reduce) {
+    html .boot {
+      animation: failsafe 0.01s linear 2s forwards !important;
+    }
+  }
+</style>

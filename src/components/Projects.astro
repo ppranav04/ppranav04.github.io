@@ -1,0 +1,370 @@
+---
+import { projects } from '../data/site';
+---
+
+<section id="projects">
+  <div class="container">
+    <h2 class="section-title">projects</h2>
+    <div class="grid">
+      {
+        projects.map((p) => (
+          <article class:list={['card', 'hud', { featured: p.featured }]}>
+            {p.media && p.media.length > 0 && (
+              <div class="media" data-media>
+                {p.media.map((m, i) =>
+                  m.type === 'video' ? (
+                    <video
+                      class="slide"
+                      src={m.src}
+                      poster={m.poster}
+                      aria-label={m.alt}
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      hidden={i > 0}
+                      style={m.position && `object-position:${m.position}`}
+                    />
+                  ) : (
+                    <img
+                      class="slide"
+                      src={m.src}
+                      alt={m.alt}
+                      loading="lazy"
+                      decoding="async"
+                      hidden={i > 0}
+                      style={m.position && `object-position:${m.position}`}
+                    />
+                  ),
+                )}
+                {p.media.map((m, i) => m.label && (
+                  <span class="media-label" data-label-for={i} hidden={i > 0}>{m.label}</span>
+                ))}
+                {p.media.length > 1 && (
+                  <div class="controls">
+                    <button type="button" data-prev aria-label={`Previous ${p.title} media`}>
+                      ‹
+                    </button>
+                    <span class="count" data-count>
+                      1 / {p.media.length}
+                    </span>
+                    <button type="button" data-next aria-label={`Next ${p.title} media`}>
+                      ›
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div class="body">
+              <span class="marker">
+                {p.status?.map((s) => <span class:list={['status', { live: s === 'in progress' }]}>○ {s}</span>)}
+              </span>
+              <h3>{p.title}</h3>
+              <p>{p.description}</p>
+              {p.note && <p class="note">{p.note}</p>}
+              <ul class="tech">
+                {p.tech.map((t) => (
+                  <li>{t}</li>
+                ))}
+              </ul>
+
+              {(p.repo || p.demo) && (
+                <div class="actions">
+                  {p.repo && (
+                    <a class="code-btn" href={p.repo} target="_blank" rel="noopener" aria-label={`${p.title} source code on GitHub`}>
+                      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                        <path
+                          fill="currentColor"
+                          d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+                        />
+                      </svg>
+                      view code
+                      <span class="arrow" aria-hidden="true">
+                        ↗
+                      </span>
+                    </a>
+                  )}
+                  {p.demo && (
+                    <a class="code-btn ghost" href={p.demo} target="_blank" rel="noopener" aria-label={`${p.title} live demo`}>
+                      live demo <span class="arrow" aria-hidden="true">↗</span>
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Autoplay muted videos only while visible, and never for reduced-motion users
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        const v = e.target as HTMLVideoElement;
+        if (e.isIntersecting && !v.hidden && !reduce) v.play().catch(() => {});
+        else v.pause();
+      }
+    },
+    { threshold: 0.35 },
+  );
+
+  document.querySelectorAll<HTMLElement>('[data-media]').forEach((box) => {
+    const slides = [...box.querySelectorAll<HTMLElement>('.slide')];
+    const count = box.querySelector('[data-count]');
+    const labels = [...box.querySelectorAll<HTMLElement>('[data-label-for]')];
+    let i = 0;
+
+    slides.forEach((s) => {
+      if (s instanceof HTMLVideoElement) {
+        if (reduce) s.controls = true;
+        io.observe(s);
+      }
+    });
+
+    const show = (n: number) => {
+      const prev = slides[i];
+      if (prev instanceof HTMLVideoElement) prev.pause();
+      prev.hidden = true;
+      i = (n + slides.length) % slides.length;
+      const next = slides[i];
+      next.hidden = false;
+      if (next instanceof HTMLVideoElement && !reduce) next.play().catch(() => {});
+      labels.forEach((l) => (l.hidden = l.dataset.labelFor !== String(i)));
+      if (count) count.textContent = `${i + 1} / ${slides.length}`;
+    };
+
+    box.querySelector('[data-prev]')?.addEventListener('click', () => show(i - 1));
+    box.querySelector('[data-next]')?.addEventListener('click', () => show(i + 1));
+  });
+</script>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: visible;
+    transition:
+      transform 0.15s,
+      border-color 0.15s,
+      box-shadow 0.15s;
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: var(--muted);
+    box-shadow: 0 0 24px rgba(var(--accent-rgb), 0.12);
+  }
+
+  .card.featured {
+    border-color: var(--slate);
+  }
+
+  /* media: full-bleed at the top of the card */
+  .media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: #000;
+    border-bottom: 1px solid var(--border);
+    border-radius: 4px 4px 0 0;
+    overflow: hidden;
+  }
+
+  .slide {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .slide[hidden] {
+    display: none;
+  }
+
+  .controls {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem;
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
+    border-radius: 4px;
+    background: rgba(10, 10, 10, 0.7);
+    backdrop-filter: blur(6px);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--chrome);
+  }
+
+  .controls button {
+    width: 1.6rem;
+    height: 1.6rem;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .controls button:hover {
+    background: rgba(var(--accent-rgb), 0.18);
+  }
+
+  .media-label {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    z-index: 2;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
+    border-radius: 4px;
+    background: rgba(10, 10, 10, 0.7);
+    backdrop-filter: blur(6px);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--chrome);
+  }
+
+  .media-label[hidden] {
+    display: none;
+  }
+
+  .count {
+    min-width: 2.6rem;
+    text-align: center;
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1.25rem 1.5rem 1.5rem;
+    container: card-body / inline-size;
+  }
+
+  /* one line on every card: sized so the longest tag fits the narrowest card */
+  .marker {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    white-space: nowrap;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+
+  /* the longest tag needs ~260px at 0.8rem; step down in the narrowest cards */
+  @container card-body (max-width: 262px) {
+    .marker {
+      font-size: 0.7rem;
+    }
+  }
+
+  .status {
+    color: var(--muted);
+  }
+
+  .status.live {
+    color: var(--chrome);
+  }
+
+  h3 {
+    margin: 0.6rem 0 0.5rem;
+    font-size: 1.2rem;
+  }
+
+  p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin: 0 0 1.25rem;
+    flex: 1;
+    white-space: pre-line;
+  }
+
+  p.note {
+    flex: 0;
+    margin-top: -0.6rem;
+    font-size: 0.82rem;
+    font-style: italic;
+    color: var(--muted);
+    opacity: 0.85;
+  }
+
+  .tech {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* prominent, boxed "view code" button */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+  }
+
+  .code-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 0.95rem;
+    border: 1px solid var(--muted);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text);
+    background: rgba(var(--accent-rgb), 0.06);
+    transition:
+      background 0.15s,
+      color 0.15s,
+      box-shadow 0.15s;
+  }
+
+  .code-btn:hover {
+    background: var(--chrome);
+    color: var(--bg);
+    box-shadow: 0 0 16px var(--glow);
+    text-decoration: none;
+  }
+
+  .code-btn .arrow {
+    transition: transform 0.15s;
+  }
+
+  .code-btn:hover .arrow {
+    transform: translate(2px, -2px);
+  }
+
+  .code-btn.ghost {
+    border-color: var(--slate);
+    background: transparent;
+  }
+</style>

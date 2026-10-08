@@ -1,0 +1,115 @@
+---
+import { profile } from '../data/site';
+
+const links = [
+  { href: '#about', label: 'about' },
+  { href: '#projects', label: 'projects' },
+  { href: '#experience', label: 'experience' },
+  { href: '#contact', label: 'contact' },
+];
+---
+
+<header>
+  <nav class="container">
+    <a href="#top" class="logo">
+      <span class="status" aria-hidden="true"></span>~/{profile.name.toLowerCase()}
+    </a>
+    <ul>
+      {
+        links.map((l, i) => (
+          <li>
+            <a href={l.href}>
+              <span class="num">0{i + 1}.</span>
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
+
+<style>
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 3.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .logo:hover {
+    text-decoration: none;
+  }
+
+  /* "online" heartbeat */
+  .status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  ul {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  ul a {
+    color: var(--muted);
+  }
+
+  ul a:hover {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .num {
+    color: var(--slate);
+    margin-right: 0.25rem;
+  }
+
+  @media (max-width: 640px) {
+    ul {
+      gap: 0.9rem;
+    }
+    .num {
+      display: none;
+    }
+    .logo {
+      display: none;
+    }
+    nav {
+      justify-content: center;
+    }
+  }
+</style>

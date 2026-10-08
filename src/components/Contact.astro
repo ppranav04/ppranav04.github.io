@@ -1,0 +1,124 @@
+---
+import { profile, socials } from '../data/site';
+
+const links = [
+  { label: 'Email', href: `mailto:${socials.email}`, text: socials.email, icon: 'M1.75 2h12.5c.97 0 1.75.78 1.75 1.75v8.5c0 .97-.78 1.75-1.75 1.75H1.75C.78 14 0 13.22 0 12.25v-8.5C0 2.78.78 2 1.75 2zM1.5 5.12v7.13c0 .14.11.25.25.25h12.5c.14 0 .25-.11.25-.25V5.12L8.43 9.07a.75.75 0 01-.86 0L1.5 5.12zM14.37 3.5H1.63L8 7.95l6.37-4.45z' },
+  { label: 'GitHub', href: socials.github, text: socials.github.replace(/^https?:\/\//, ''), icon: 'M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z' },
+  { label: 'LinkedIn', href: socials.linkedin, text: socials.linkedin.replace(/^https?:\/\/(www\.)?/, ''), icon: 'M0 1.15C0 .52.52 0 1.17 0h13.66C15.48 0 16 .52 16 1.15v13.7c0 .63-.52 1.15-1.17 1.15H1.17C.52 16 0 15.48 0 14.85V1.15zM4.75 13.4V6.17h-2.4v7.23h2.4zM3.55 5.18c.84 0 1.36-.56 1.36-1.25-.02-.71-.52-1.25-1.34-1.25-.82 0-1.36.54-1.36 1.25 0 .7.52 1.25 1.33 1.25h.01zM6.08 13.4h2.4V9.36c0-.22.02-.43.08-.59.18-.43.57-.88 1.23-.88.87 0 1.21.66 1.21 1.63v3.88h2.4V9.26c0-2.22-1.18-3.25-2.76-3.25-1.27 0-1.84.7-2.16 1.2v.02h-.02l.02-.02V6.17h-2.4c.03.68 0 7.23 0 7.23z' },
+].filter((l) => l.href && !l.href.endsWith(':'));
+---
+
+<section id="contact">
+  <div class="container">
+    <h2 class="section-title">contact</h2>
+    <ul class="links">
+      {links.map((l) => (
+        <li>
+          <a href={l.href} target={l.label === 'Email' ? undefined : '_blank'} rel="noopener">
+            <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d={l.icon} /></svg>
+            <span class="label">{l.label}</span>
+            <span class="text">{l.text}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="actions">
+      <a class="btn primary" href={`mailto:${socials.email}`}>say hello</a>
+      <button class="btn copy" type="button" data-email={socials.email}>copy email</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>© {new Date().getFullYear()} {profile.name} · built with Astro, hosted on GitHub Pages · <span class="ok">all systems online</span></p>
+  </div>
+</footer>
+
+<script>
+  // Fallback for visitors without a mail app: copy the address instead
+  document.querySelectorAll<HTMLButtonElement>('.copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.email ?? '');
+        btn.textContent = 'copied ✓';
+      } catch {
+        btn.textContent = btn.dataset.email ?? '';
+      }
+      setTimeout(() => (btn.textContent = 'copy email'), 2000);
+    });
+  });
+</script>
+
+<style>
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .copy {
+    background: none;
+    cursor: pointer;
+  }
+
+  .links {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+    max-width: 560px;
+    border-top: 1px solid var(--border);
+  }
+
+  .links a {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem 0.25rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    transition:
+      color 0.15s,
+      padding 0.15s;
+  }
+
+  .links a:hover {
+    color: var(--chrome);
+    padding-left: 0.6rem;
+    text-decoration: none;
+  }
+
+  .links svg {
+    flex: none;
+    color: var(--muted);
+  }
+
+  .label {
+    width: 5.5rem;
+    flex: none;
+    font-weight: 600;
+  }
+
+  .text {
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  footer p {
+    margin: 0;
+  }
+
+  .ok {
+    color: var(--muted);
+  }
+</style>
