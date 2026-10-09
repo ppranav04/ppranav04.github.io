@@ -8,7 +8,7 @@ export const profile = {
   tagline: 'Building the robots science fiction promised us.',
   bio: [
     'I understand a problem from first principles before reaching for abstractions. My experience in robotics: motion planning for a SCARA arm, a ROS 2 perception-to-manipulation pipeline on a Jetson, and imitation learning on LeRobot\'s SO-101 arms. What drives me is the fascination of robots operating with the code I write.',
-    "Outside work, I'm obsessed with the humanoid robotics space, I rewatch Interstellar and Pacific Rim too often, and I believe robots are a big part of humanity's future.",
+    "Outside work, I'm obsessed with the humanoid robotics space, I rewatch Interstellar and Pacific Rim far too often, and I believe robots are a big part of humanity's future.",
   ],
   skills: ['C++', 'Python', 'ROS 2', 'EKF', 'Motion Planning (A*)', 'OpenCV', 'YOLOv8 + TensorRT', 'PyTorch', 'Imitation Learning (LeRobot / ACT)', 'NVIDIA Jetson', 'Docker / Linux'],
   photo: '/photo-crop.jpg', // '' shows initials instead
