@@ -1,8 +1,7 @@
 ---
 // Boot screen: "bringing systems online." resolves out of blur, a chrome line draws, a counter
-// runs to 100, the text switches to "systems online.", then the screen wipes upward. Shows once per browser session; click or Esc skips it.
+// runs to 100, then the screen wipes upward. Shows once per browser session; click or Esc skips it.
 const word = 'bringing systems online.';
-const doneWord = 'systems online.';
 ---
 
 <div id="boot" class="boot" title="Click to skip">
@@ -12,7 +11,7 @@ const doneWord = 'systems online.';
   <div class="corner br counter" aria-hidden="true"><span data-count>000</span></div>
 
   <div class="center">
-    <p class="word display" aria-label={word} data-done={doneWord}>
+    <p class="word display" aria-label={word}>
       {
         [...word].map((ch, i) => (
           <span style={`--i:${i}`} aria-hidden="true">
@@ -65,11 +64,7 @@ const doneWord = 'systems online.';
       count.textContent = String(Math.round(eased * 100)).padStart(3, '0');
       phase.textContent = phases[Math.min(phases.length - 1, Math.floor(t * phases.length))];
       if (t < 1) return requestAnimationFrame(tick);
-      const word = el.querySelector('.word');
-      word.textContent = word.dataset.done;
-      word.setAttribute('aria-label', word.dataset.done);
-      word.classList.add('swapped');
-      setTimeout(finish, reduce ? 0 : 400);
+      finish();
     }
 
     requestAnimationFrame(tick);
@@ -122,10 +117,6 @@ const doneWord = 'systems online.';
     display: inline-block;
     white-space: pre;
     animation: resolve 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) calc(0.05s + var(--i) * 0.015s) backwards;
-  }
-
-  .word.swapped {
-    animation: resolve 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
   @keyframes resolve {

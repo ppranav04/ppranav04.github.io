@@ -105,7 +105,7 @@ export const projects: Project[] = [
         type: 'video',
         src: '/projects/scara/planner.mp4',
         poster: '/projects/scara/planner-poster.jpg',
-        alt: 'Simulation of the planner: a visibility graph is built around obstacles in a 2-DOF SCARA workspace, A* finds the shortest collision-free path, and the arm follows it',
+        alt: 'Simulation of the planner: a visibility graph is built around obstacles in a SCARA workspace, A* finds the shortest collision-free path, and the arm follows it',
         label: 'simulation',
       },
       {
@@ -194,7 +194,7 @@ export const experience: Entry[] = [
     org: 'Indira Gandhi Centre for Atomic Research (IGCAR), Kalpakkam',
     period: 'Jan 2026 — Apr 2026',
     points: [
-      'Implemented a visibility graph + A* path planner for a 2-DOF SCARA manipulator, running natively on the PLC motion controller and validated in real time on a 1:1 hardware test rig.',
+      'Implemented a visibility graph + A* path planner for a SCARA manipulator, running natively on the PLC motion controller and validated in real time on a 1:1 hardware test rig.',
       "Benchmarked A* against Dijkstra across 1–10 obstacles: identical optimal path lengths, with A*'s compute-time advantage growing to 48% at 10 obstacles.",
     ],
   },
@@ -212,7 +212,7 @@ export const experience: Entry[] = [
     org: 'Indira Gandhi Centre for Atomic Research (IGCAR), Kalpakkam',
     period: 'Jun 2024 — Jul 2024',
     points: [
-      'Developed a Python simulation of damped-least-squares inverse kinematics for a 2-DOF SCARA, with speed-based time interpolation to cap joint velocities and remove step changes that would trip the motors.',
+      'Developed a Python simulation of damped-least-squares inverse kinematics for a SCARA, with speed-based time interpolation to cap joint velocities and remove step changes that would trip the motors.',
       'Built an obstacle-avoidance planner with an interactive Pygame simulator, later extended into the multi-obstacle thesis planner.',
     ],
   },
