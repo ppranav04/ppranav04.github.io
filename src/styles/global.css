@@ -1,6 +1,6 @@
 :root {
   /* Steel navy + Obsidian Chrome */
-  --bg: #0a0a0a; /* onyx */
+  --bg: #000000; /* pure black */
   --bg-elev: #0f1418;
   --border: #1f2a33;
   --slate: #4a5c6a;
@@ -17,6 +17,28 @@
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
   --max-w: 1040px;
+  --nav-bg: rgba(0, 0, 0, 0.8);
+  --shadow: rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+/* Light mode: alabaster paper, navy ink */
+:root[data-theme='light'] {
+  --bg: #f4f4f2;
+  --bg-elev: #ffffff;
+  --border: #d6dbde;
+  --slate: #6b7c88;
+  --blue-slate: #536878;
+  --muted: #4a5c6a;
+  --dim: #8a97a0;
+  --chrome: #1f2a33;
+  --text: #0f1418;
+  --accent: #4a5c6a;
+  --accent-rgb: 74, 92, 106;
+  --glow: rgba(var(--accent-rgb), 0.18);
+  --nav-bg: rgba(244, 244, 242, 0.85);
+  --shadow: rgba(15, 20, 24, 0.12);
+  color-scheme: light;
 }
 
 *,
@@ -37,12 +59,10 @@ body {
   font-size: 1.0625rem;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
-  /* faint blueprint grid */
   background-color: var(--bg);
-  background-image:
-    linear-gradient(rgba(var(--accent-rgb), 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(var(--accent-rgb), 0.02) 1px, transparent 1px);
-  background-size: 32px 32px;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 
 a {

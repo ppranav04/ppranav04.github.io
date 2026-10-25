@@ -25,16 +25,44 @@ const links = [
           </li>
         ))
       }
+      <li class="theme-item">
+        <button class="theme-switch" type="button" role="switch" aria-checked="false" aria-label="Light mode" title="Toggle light mode">
+          <span class="knob" aria-hidden="true">
+            <svg class="moon" viewBox="0 0 24 24" width="12" height="12"><path fill="currentColor" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+            <svg class="sun" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+          </span>
+        </button>
+      </li>
     </ul>
   </nav>
 </header>
+
+<script>
+  const root = document.documentElement;
+  const btn = document.querySelector<HTMLButtonElement>('.theme-switch')!;
+  const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  const sync = () => {
+    const light = root.dataset.theme === 'light';
+    btn.setAttribute('aria-checked', String(light));
+    meta?.setAttribute('content', light ? '#f4f4f2' : '#000000');
+  };
+  sync();
+  btn.addEventListener('click', () => {
+    const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {}
+    sync();
+  });
+</script>
 
 <style>
   header {
     position: sticky;
     top: 0;
     z-index: 10;
-    background: rgba(10, 10, 10, 0.8);
+    background: var(--nav-bg);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--border);
   }
@@ -96,6 +124,75 @@ const links = [
   .num {
     color: var(--slate);
     margin-right: 0.25rem;
+  }
+
+  .theme-item {
+    display: flex;
+    align-items: center;
+  }
+
+  /* sliding switch: moon on the left (dark), sun on the right (light) */
+  .theme-switch {
+    position: relative;
+    width: 2.6rem;
+    height: 1.4rem;
+    padding: 0;
+    border: 1px solid var(--slate);
+    border-radius: 999px;
+    background: var(--bg-elev);
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s,
+      background 0.3s;
+  }
+
+  .theme-switch:hover {
+    border-color: var(--chrome);
+    box-shadow: 0 0 10px var(--glow);
+  }
+
+  .knob {
+    position: absolute;
+    top: 50%;
+    left: 0.15rem;
+    width: 1.05rem;
+    height: 1.05rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--chrome);
+    color: var(--bg);
+    transform: translateY(-50%);
+    transition:
+      transform 0.35s cubic-bezier(0.65, 0, 0.35, 1),
+      background 0.3s;
+  }
+
+  .knob svg {
+    grid-area: 1 / 1;
+    transition:
+      opacity 0.25s,
+      transform 0.35s;
+  }
+
+  .sun {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+  }
+
+  .theme-switch[aria-checked='true'] .knob {
+    transform: translate(1.2rem, -50%);
+  }
+
+  .theme-switch[aria-checked='true'] .moon {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.5);
+  }
+
+  .theme-switch[aria-checked='true'] .sun {
+    opacity: 1;
+    transform: none;
   }
 
   @media (max-width: 640px) {
