@@ -24,7 +24,7 @@ import { projects } from '../data/site';
                       playsinline
                       preload="none"
                       hidden={i > 0}
-                      style={m.position && `object-position:${m.position}`}
+                      style={[m.position && `object-position:${m.position}`, m.fit && `object-fit:${m.fit}`].filter(Boolean).join(';') || undefined}
                     />
                   ) : (
                     <img
@@ -34,7 +34,7 @@ import { projects } from '../data/site';
                       loading="lazy"
                       decoding="async"
                       hidden={i > 0}
-                      style={m.position && `object-position:${m.position}`}
+                      style={[m.position && `object-position:${m.position}`, m.fit && `object-fit:${m.fit}`].filter(Boolean).join(';') || undefined}
                     />
                   ),
                 )}
@@ -100,8 +100,8 @@ import { projects } from '../data/site';
                     </a>
                   )}
                   {p.demo && (
-                    <a class="code-btn ghost" href={p.demo} target="_blank" rel="noopener" aria-label={`${p.title} live demo`}>
-                      live demo <span class="arrow" aria-hidden="true">↗</span>
+                    <a class="code-btn ghost" href={p.demo} target="_blank" rel="noopener" aria-label={`${p.title} demo video`}>
+                      watch demo <span class="arrow" aria-hidden="true">↗</span>
                     </a>
                   )}
                 </div>
@@ -378,7 +378,8 @@ import { projects } from '../data/site';
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
-    margin-top: 1.25rem;
+    margin-top: auto; /* pin buttons to the bottom of the card */
+    padding-top: 1.25rem;
   }
 
   .code-btn {
@@ -417,5 +418,18 @@ import { projects } from '../data/site';
   .code-btn.ghost {
     border-color: var(--slate);
     background: transparent;
+  }
+
+  .code-btn.ghost:hover {
+    background: var(--chrome);
+    color: var(--bg);
+  }
+
+  /* two buttons: tighten them so "watch demo" stays beside "view code" */
+  .actions:has(> :nth-child(2)) .code-btn {
+    gap: 0.4rem;
+    padding-inline: 0.7rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
   }
 </style>

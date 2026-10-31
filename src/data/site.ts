@@ -28,6 +28,7 @@ export type Media = {
   alt: string;
   poster?: string; // still frame shown before the video loads
   position?: string; // CSS object-position, e.g. '50% 20%'
+  fit?: 'cover' | 'contain'; // 'contain' shows the whole image without cropping
   label?: string; // corner tag, e.g. 'simulation'
 };
 
@@ -64,6 +65,31 @@ export const projects: Project[] = [
         src: '/projects/bt-101/joystick.mp4',
         poster: '/projects/bt-101/joystick-poster.jpg',
         alt: 'Joystick teleoperation of the SO-101 arm',
+      },
+    ],
+  },
+  {
+    title: 'Factory AMR: Task Dispatch & Autonomous Navigation',
+    description:
+      'A robot that autonomously collects full bins from CNC machines in a simulated factory and delivers them to storage, avoiding a moving cart.\nI developed the pickup dispatcher and station simulation, and configured Nav2 for autonomous navigation on a TurtleBot3.',
+    tech: ['ROS 2 Jazzy', 'Nav2', 'Gazebo Harmonic', 'slam_toolbox', 'Python', 'Docker'],
+    repo: 'https://github.com/ppranav04/turtlebot3_factory_nav',
+    demo: 'https://youtu.be/DCC3VNYN0Us',
+    status: ['completed', 'simulation'],
+    media: [
+      {
+        type: 'video',
+        src: '/projects/factory-nav/demo.mp4',
+        poster: '/projects/factory-nav/demo-poster.jpg',
+        alt: 'Gazebo and RViz side by side: the TurtleBot3 collects bins from the CNC machines and delivers them to the storage deck, sped up 3x',
+        label: 'simulation',
+      },
+      {
+        type: 'image',
+        src: '/projects/factory-nav/layout.jpg',
+        fit: 'contain',
+        alt: 'Top view of the Gazebo factory floor: dock, four CNC machines with coloured bins, central rack, storage deck and a moving pallet cart',
+        label: 'simulation',
       },
     ],
   },
