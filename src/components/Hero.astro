@@ -160,8 +160,14 @@ import Contributions from './Contributions.astro';
       grid-template-columns: 1fr;
       gap: 2rem;
     }
+    /* on phones the photo goes first and the GitHub card drops below the buttons */
     .side {
+      display: contents;
+    }
+    .side :global(.photo) {
       order: -1;
+    }
+    .side :global(.gh) {
       margin-top: 0;
     }
   }
