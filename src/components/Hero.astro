@@ -1,6 +1,7 @@
 ---
 import { profile, socials } from '../data/site';
 import Photo from './Photo.astro';
+import Contributions from './Contributions.astro';
 ---
 
 <section id="about" class="hero">
@@ -49,7 +50,10 @@ import Photo from './Photo.astro';
         </div>
       </div>
 
-      <Photo />
+      <div class="side">
+        <Photo />
+        <Contributions />
+      </div>
     </div>
 
   </div>
@@ -68,7 +72,7 @@ import Photo from './Photo.astro';
   }
 
   /* top of the photo lines up with the name: skip the "$ whoami" line (font-size x line-height + margin) */
-  .intro :global(.photo) {
+  .side {
     margin-top: calc(0.9rem * 1.65 + 0.5rem);
   }
 
@@ -156,7 +160,7 @@ import Photo from './Photo.astro';
       grid-template-columns: 1fr;
       gap: 2rem;
     }
-    .intro :global(.photo) {
+    .side {
       order: -1;
       margin-top: 0;
     }

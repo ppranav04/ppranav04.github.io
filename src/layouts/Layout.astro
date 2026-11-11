@@ -1,7 +1,6 @@
 ---
 import '../styles/global.css';
 import { profile } from '../data/site';
-import Loader from '../components/Loader.astro';
 
 interface Props {
   title?: string;
@@ -52,7 +51,6 @@ const ogImage = new URL('/og.png', Astro.site);
     <title>{title}</title>
   </head>
   <body>
-    <Loader />
     <slot />
   </body>
 </html>

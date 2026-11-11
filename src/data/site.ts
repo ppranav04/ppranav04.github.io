@@ -46,6 +46,29 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    title: 'SO-101 Manipulation Stack',
+    description:
+      'A ROS 2 stack for LeRobot\'s SO-101 arm, built towards camera-guided pick-and-place.\nI developed a C++ ros2_control driver for the arm\'s servo bus, so the same controllers run on mock hardware, in Gazebo and on the real arm.\nNext: MoveIt 2 with a closed-form IK plugin, hand-eye calibration and RGB pick-and-place.',
+    tech: ['C++', 'ROS 2 Jazzy', 'ros2_control', 'Gazebo Harmonic', 'Docker', 'GitHub Actions'],
+    repo: 'https://github.com/ppranav04/so101_manipulation_stack',
+    status: ['in progress'],
+    media: [
+      {
+        type: 'video',
+        src: '/projects/so101-stack/demo.mp4',
+        poster: '/projects/so101-stack/demo-poster.jpg',
+        alt: 'The real SO-101 arm, Gazebo and RViz running the same trajectory, sped up 2x',
+      },
+      {
+        type: 'image',
+        src: '/projects/so101-stack/rviz.jpg',
+        fit: 'contain',
+        alt: 'SO-101 robot model in RViz',
+        label: 'simulation',
+      },
+    ],
+  },
+  {
     title: 'BT-101: Autonomous Manipulation Platform',
     description:
       'Imitation learning on LeRobot\'s SO-101 arms. I developed joystick and leader-follower teleop, and currently I\'m recording demonstrations to train an ACT policy.\nNext: Diffusion Policy and a voice-responsive assistant that moves expressively as it talks.',

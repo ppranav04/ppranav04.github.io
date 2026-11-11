@@ -1,0 +1,210 @@
+---
+// Compact GitHub contribution graph shown under the hero photo. Fetched in the browser
+// from a public API, so it stays current between deploys. Uses the site's palette.
+import { socials } from '../data/site';
+
+const user = socials.github.split('/').filter(Boolean).pop();
+const months = 6; // rolling window shown
+---
+
+<div class="contrib" data-contrib data-user={user} data-window={months}>
+  <div class="head">
+    <span>contributions</span>
+    <a href={socials.github} target="_blank" rel="noopener" aria-label="GitHub profile">↗</a>
+  </div>
+
+  <div class="scroll" data-scroll>
+    <div class="graph">
+      <div class="months" data-months aria-hidden="true"></div>
+      <div class="cells" data-cells role="img" aria-label="GitHub contribution graph"></div>
+    </div>
+  </div>
+
+  <div class="legend" aria-hidden="true">
+    less <i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i> more
+  </div>
+  <p class="error" data-error hidden>
+    Couldn't load. See <a href={socials.github} target="_blank" rel="noopener">GitHub</a>.
+  </p>
+</div>
+
+<script>
+  type Day = { date: string; count: number; level: number };
+
+  const root = document.querySelector<HTMLElement>('[data-contrib]');
+  if (root) load(root);
+
+  async function load(root: HTMLElement) {
+    const q = (s: string) => root.querySelector<HTMLElement>(s)!;
+    try {
+      const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${root.dataset.user}?y=last`);
+      if (!res.ok) throw new Error(String(res.status));
+      const data: { contributions: Day[] } = await res.json();
+      const start = new Date();
+      start.setMonth(start.getMonth() - Number(root.dataset.window));
+      const since = start.toLocaleDateString('en-CA'); // YYYY-MM-DD, local time
+      const days = data.contributions.filter((d) => d.date >= since);
+      if (days.length === 0) throw new Error('no data');
+      render(days, q('[data-cells]'), q('[data-months]'));
+      const scroll = q('[data-scroll]');
+      scroll.scrollLeft = scroll.scrollWidth; // newest weeks first if it overflows
+    } catch {
+      q('[data-error]').hidden = false;
+    }
+  }
+
+  function render(days: Day[], cells: HTMLElement, months: HTMLElement) {
+    const fmt = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' });
+    const monthFmt = new Intl.DateTimeFormat('en', { month: 'short' });
+    const parse = (d: string) => new Date(d + 'T00:00:00');
+
+    // pad so each column runs Sunday to Saturday
+    const lead = parse(days[0].date).getDay();
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < lead; i++) frag.append(document.createElement('span'));
+
+    let lastMonth = -1;
+    days.forEach((d, i) => {
+      const date = parse(d.date);
+      const cell = document.createElement('span');
+      cell.className = `c l${d.level}`;
+      const n = d.count === 0 ? 'No' : d.count;
+      cell.title = `${n} contribution${d.count === 1 ? '' : 's'} on ${fmt.format(date)}`;
+      frag.append(cell);
+
+      // month label above the first column of each month
+      const week = Math.floor((i + lead) / 7);
+      if ((i === 0 || date.getDay() === 0) && date.getMonth() !== lastMonth) {
+        lastMonth = date.getMonth();
+        const label = document.createElement('span');
+        label.textContent = monthFmt.format(date).toLowerCase();
+        label.style.gridColumn = String(week + 1);
+        months.append(label);
+      }
+    });
+    cells.replaceChildren(frag);
+  }
+</script>
+
+<style>
+  .contrib {
+    --cell: 8px;
+    --gap: 2px;
+    width: 300px;
+    margin-top: 1rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-elev);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .head a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .head a:hover {
+    color: var(--text);
+  }
+
+  .scroll {
+    overflow-x: auto;
+  }
+
+  .graph {
+    width: max-content;
+    color: var(--slate);
+    font-size: 0.65rem;
+  }
+
+  .months {
+    display: grid;
+    grid-auto-columns: var(--cell);
+    column-gap: var(--gap);
+    height: 1rem;
+  }
+
+  .months span {
+    grid-row: 1;
+    white-space: nowrap;
+  }
+
+  .cells {
+    display: grid;
+    grid-template-rows: repeat(7, var(--cell));
+    grid-auto-flow: column;
+    grid-auto-columns: var(--cell);
+    gap: var(--gap);
+  }
+
+  .cells :global(.c),
+  .legend i {
+    border-radius: 2px;
+    background: var(--border);
+  }
+
+  .cells :global(.c:hover) {
+    outline: 1px solid var(--text);
+  }
+
+  .cells :global(.l1),
+  .legend .l1 {
+    background: rgba(var(--accent-rgb), 0.35);
+  }
+
+  .cells :global(.l2),
+  .legend .l2 {
+    background: rgba(var(--accent-rgb), 0.6);
+  }
+
+  .cells :global(.l3),
+  .legend .l3 {
+    background: rgba(var(--accent-rgb), 0.85);
+  }
+
+  .cells :global(.l4),
+  .legend .l4 {
+    background: var(--chrome);
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--gap);
+    margin-top: 0.6rem;
+    font-size: 0.62rem;
+    color: var(--slate);
+  }
+
+  .legend i {
+    width: 9px;
+    height: 9px;
+  }
+
+  .error {
+    margin: 0.5rem 0 0;
+  }
+
+  .error a {
+    color: var(--text);
+  }
+
+  @media (max-width: 820px) {
+    .contrib {
+      width: auto;
+      max-width: 300px;
+    }
+  }
+</style>
